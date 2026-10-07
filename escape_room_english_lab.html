@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape the Knowledge Lab - TKA English Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            dark: '#0B0F19',
+                            card: 'rgba(23, 31, 51, 0.7)',
+                            neon: '#00F2FE',
+                            accent: '#4FACFE',
+                            purple: '#7F00FF',
+                            danger: '#FF0055',
+                            success: '#00FF87',
+                            gold: '#FFD700'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #060913;
+            color: #E2E8F0;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(79, 172, 254, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(127, 0, 255, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(18, 26, 43, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel-glow {
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        .neon-text-cyan {
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .neon-text-gold {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(11, 15, 25, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(79, 172, 254, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.6);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Top Header / Bar Stats -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <!-- Brand / Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyber-purple to-cyber-neon flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-cyber-neon/20">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-wide text-white">THE KNOWLEDGE LAB</h1>
+                    <p class="text-xs text-cyan-400 font-mono mt-0.5">TKA English Escape Room</p>
+                </div>
+            </div>
+
+            <!-- Global Game Controls & Indicators -->
+            <div id="header-stats" class="hidden flex items-center gap-4 sm:gap-6 font-mono text-sm">
+                <!-- Timer -->
+                <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                    <i class="fa-regular fa-clock text-amber-400 animate-pulse"></i>
+                    <span id="timer-display" class="font-bold text-amber-300">25:00</span>
+                </div>
+
+                <!-- Score -->
+                <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                    <i class="fa-solid fa-trophy text-cyber-gold"></i>
+                    <span id="score-display" class="font-bold text-cyber-gold">1000</span>
+                </div>
+
+                <!-- Progress -->
+                <div class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                    <i class="fa-solid fa-door-open text-cyber-neon"></i>
+                    <span id="progress-display" class="font-bold text-cyber-neon">0/9</span>
+                </div>
+
+                <!-- Audio Toggle Button -->
+                <button id="audio-toggle-btn" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300 transition-all">
+                    <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-6 max-w-7xl">
+        
+        <!-- START SCREEN -->
+        <div id="start-screen" class="max-w-3xl mx-auto my-8">
+            <div class="glass-panel p-8 sm:p-10 rounded-2xl relative overflow-hidden border border-cyber-neon/30 text-center">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyber-neon/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-cyber-purple/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="inline-block p-4 bg-slate-900/80 rounded-2xl border border-cyber-neon/40 mb-6 shadow-xl">
+                    <i class="fa-solid fa-user-lock text-5xl text-cyber-neon animate-pulse"></i>
+                </div>
+
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+                    SELAMAT DATANG DI <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-accent">KNOWLEDGE LAB</span>
+                </h2>
+                
+                <p class="text-slate-300 mb-6 leading-relaxed max-w-xl mx-auto">
+                    Kamu terjebak di dalam laboratorium literasi Bahasa Inggris kuno. Untuk melarikan diri, kamu harus memecahkan kode rahasia pada <strong>9 Ruangan Misteri (Chambers)</strong> yang terkunci menggunakan pemahaman teks Bahasa Inggris (TKA Lab).
+                </p>
+
+                <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 mb-8 text-left text-sm text-slate-300 space-y-2 max-w-md mx-auto font-mono">
+                    <div class="flex items-center gap-2 text-cyan-400 font-bold mb-2">
+                        <i class="fa-solid fa-circle-info"></i> INSTROKSI MISI:
+                    </div>
+                    <p>• Selesaikan pertanyaan di setiap Chamber untuk membuka kunci pintu.</p>
+                    <p>• Terdapat 3 tipe soal: PG Tunggal, PG Kompleks (Centang), & Matriks Tabel.</p>
+                    <p>• Gunakan Clue / Hint jika mengalami kesulitan (-50 poin).</p>
+                    <p>• Selesaikan sebelum waktu 25 menit habis!</p>
+                </div>
+
+                <!-- Player Name Input -->
+                <div class="max-w-md mx-auto mb-6">
+                    <label class="block text-xs font-mono text-slate-400 mb-2 uppercase text-left">Nama Agens / Siswa:</label>
+                    <input type="text" id="player-name-input" placeholder="Masukkan nama kamu..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyber-neon transition-all text-center font-bold text-lg">
+                </div>
+
+                <button id="start-game-btn" class="w-full max-w-md py-4 px-8 bg-gradient-to-r from-cyber-neon to-cyber-accent text-slate-950 font-extrabold text-lg rounded-xl shadow-lg hover:shadow-cyber-neon/40 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <i class="fa-solid fa-play mr-2"></i> MULAI PETUALANGAN ESCAPE
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN GAMEPLAY DASHBOARD (HIDDEN INITIALLY) -->
+        <div id="game-dashboard" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Panel: Chambers Map & Navigation (4 Cols) -->
+            <div class="lg:col-span-4 space-y-4">
+                <div class="glass-panel p-5 rounded-2xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-200 flex items-center gap-2">
+                            <i class="fa-solid fa-map-location-dot text-cyber-neon"></i> PETA LABORATORIUM
+                        </h3>
+                        <span class="text-xs font-mono text-slate-400" id="map-status-text">9 Chambers</span>
+                    </div>
+
+                    <!-- Chamber Map List -->
+                    <div class="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1" id="chambers-list-container">
+                        <!-- Dynamically Generated Chamber Cards -->
+                    </div>
+                </div>
+
+                <!-- Inventory / Notebook Box -->
+                <div class="glass-panel p-5 rounded-2xl">
+                    <h3 class="font-bold text-slate-200 flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-briefcase text-cyber-gold"></i> INVENTORY ARTEFAK
+                    </h3>
+                    <div id="inventory-container" class="grid grid-cols-3 gap-2 text-center">
+                        <!-- Keycard Artifacts Unlocked Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Active Chamber Details & Puzzle Solver (8 Cols) -->
+            <div class="lg:col-span-8">
+                <div id="chamber-detail-card" class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-700/50 min-h-[500px] flex flex-col justify-between">
+                    <!-- Dynamic content filled by JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- VICTORY / CERTIFICATE SCREEN (HIDDEN INITIALLY) -->
+        <div id="victory-screen" class="hidden max-w-4xl mx-auto my-6">
+            <div id="printable-certificate" class="glass-panel p-8 sm:p-12 rounded-2xl border-2 border-cyber-gold/50 text-center relative overflow-hidden bg-slate-950">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent pointer-events-none"></div>
+
+                <!-- Certificate Header -->
+                <div class="border-b-2 border-slate-800 pb-6 mb-8 flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyber-gold to-amber-600 flex items-center justify-center text-slate-950 text-3xl font-extrabold mb-3 shadow-lg shadow-cyber-gold/30">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <p class="text-xs font-mono tracking-widest text-amber-400 uppercase">Sertifikat Kelulusan TKA Bahasa Inggris</p>
+                    <h2 class="text-3xl sm:text-5xl font-black text-white mt-1">THE KNOWLEDGE MASTER</h2>
+                    <p class="text-slate-400 text-sm mt-1">Laboratorium Bahasa & Literasi TKA Lab</p>
+                </div>
+
+                <!-- Student Info & Results -->
+                <div class="space-y-4 mb-8">
+                    <p class="text-slate-400 text-base">Dengan ini menyatakan bahwa Agent:</p>
+                    <p id="cert-student-name" class="text-3xl font-bold text-cyber-neon underline decoration-cyber-neon/50 underline-offset-8">AGENT NAME</p>
+                    <p class="text-slate-300 max-w-xl mx-auto text-sm leading-relaxed">
+                        Telah berhasil memecahkan seluruh teka-teki literasi pada 9 Ruangan Teks Bahasa Inggris dan berhasil melarikan diri dari <strong>The Knowledge Lab</strong>.
+                    </p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8 font-mono">
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl">
+                        <p class="text-xs text-slate-500">SKOR AKHIR</p>
+                        <p id="cert-final-score" class="text-2xl font-bold text-cyber-gold">1000</p>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl">
+                        <p class="text-xs text-slate-500">SISA WAKTU</p>
+                        <p id="cert-time-left" class="text-2xl font-bold text-cyber-neon">15:20</p>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl">
+                        <p class="text-xs text-slate-500">CHAMBERS</p>
+                        <p class="text-2xl font-bold text-emerald-400">9/9</p>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl">
+                        <p class="text-xs text-slate-500">PREDIKAT</p>
+                        <p id="cert-badge-title" class="text-lg font-bold text-purple-400 truncate">MASTER</p>
+                    </div>
+                </div>
+
+                <!-- Badges Earned Section -->
+                <div class="mb-8">
+                    <p class="text-xs font-mono text-slate-400 mb-3">LENCANA PENCAPAIAN:</p>
+                    <div id="badges-container" class="flex flex-wrap justify-center gap-3">
+                        <!-- Dynamic Badges -->
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-wrap justify-center gap-4 print:hidden">
+                    <button onclick="window.print()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-600 transition-all">
+                        <i class="fa-solid fa-print mr-2"></i> Cetak / Simpan PDF
+                    </button>
+                    <button id="restart-game-btn" class="px-6 py-3 bg-gradient-to-r from-cyber-neon to-cyber-accent text-slate-950 font-extrabold rounded-xl shadow-lg transition-all">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Main Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Explanation Modal -->
+    <div id="modal-explanation" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-2xl w-full rounded-2xl border border-cyan-500/40 p-6 sm:p-8 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center gap-3 text-emerald-400 font-bold text-xl border-b border-slate-800 pb-3">
+                <i class="fa-solid fa-circle-check text-2xl"></i>
+                <span id="modal-title">CHAMBER UNLOCKED!</span>
+            </div>
+            
+            <p class="text-slate-300 text-sm leading-relaxed" id="modal-message">
+                Selamat! Kamu berhasil memecahkan kode kunci untuk ruangan ini.
+            </p>
+
+            <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl space-y-3 text-sm">
+                <h4 class="font-bold text-cyber-neon flex items-center gap-2">
+                    <i class="fa-solid fa-book-open"></i> Pembahasan Kunci Jawaban:
+                </h4>
+                <div id="modal-body-content" class="text-slate-300 space-y-2 font-mono text-xs sm:text-sm">
+                    <!-- Detailed worksheet answer explanation here -->
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button id="modal-close-btn" class="px-6 py-2.5 bg-cyber-neon text-slate-950 font-bold rounded-xl hover:opacity-90 transition-all">
+                    Lanjut Ke Ruangan Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 font-mono mt-auto">
+        Escape Room Game - Developed for TKA English Lab Worksheet • 2026 Edition
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           AUDIO SYNTHESIZER (WEB AUDIO API)
+           ========================================================================== */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.1) {
+                if (this.isMuted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            }
+
+            playClick() {
+                this.playTone(800, 'sine', 0.05, 0.05);
+            }
+
+            playSuccess() {
+                if (this.isMuted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'triangle', 0.2, 0.1), idx * 80);
+                });
+            }
+
+            playError() {
+                if (this.isMuted || !this.ctx) return;
+                this.playTone(180, 'sawtooth', 0.25, 0.15);
+                setTimeout(() => this.playTone(130, 'sawtooth', 0.3, 0.15), 100);
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        /* ==========================================================================
+           GAME DATA (STRICTLY FROM WORKSHEET)
+           ========================================================================== */
+        const chambersData = [
+            {
+                id: 1,
+                type: "Narrative Text",
+                title: "Chamber 1: The Little Firefly",
+                icon: "fa-bug",
+                textTitle: "Text A: The Little Firefly",
+                passage: `Every night in the old bamboo forest, the animals gathered around Grandfather Owl to hear stories. A tiny firefly named Lumi always sat at the back. Her light was so dim that the other fireflies teased her. "You will never shine like us," they said.\n\nOne stormy night, a baby deer named Rusa got lost far from home. The forest was pitch black, and the strong fireflies hid in the leaves, afraid of the rain. Lumi heard the baby deer crying. Although she was shivering, she flew out and hovered in front of him. Her small light was just enough to show the muddy path.\n\nStep by step, Lumi led the baby deer home. When Rusa's mother saw them, she cried with joy. The next morning, the other fireflies felt ashamed and said sorry. Grandfather Owl smiled. "A light is not measured by its brightness," he said, "but by who it helps."`,
+                questions: [
+                    {
+                        qId: "q1_1",
+                        type: "mcq",
+                        prompt: "1. Which option best summarizes the story?",
+                        options: [
+                            "A. Beginning: Lumi was a very bright firefly. Problem: Rain put out her light. Solution: Grandfather Owl lit it again. Lesson: Always listen to elders.",
+                            "B. Beginning: Lumi's dim light was teased by other fireflies. Problem: A baby deer was lost in a dark storm. Solution: Lumi lit the path and led him home. Lesson: Even the smallest helper can do great things.",
+                            "C. Beginning: The fireflies held a shining contest. Problem: Lumi lost the contest. Solution: Rusa judged again. Lesson: Practice makes perfect.",
+                            "D. Beginning: Rusa wanted to meet the owl. Problem: He was hungry. Solution: The fireflies brought fruit. Lesson: Always share your food."
+                        ],
+                        correct: "B"
+                    },
+                    {
+                        qId: "q1_2",
+                        type: "mcma",
+                        prompt: "2. Which statements best convey the message of the story? (Select ALL correct answers)",
+                        options: [
+                            "We should not judge others by how small or weak they seem.",
+                            "Staying at home is always safer than helping someone.",
+                            "Real value comes from helping others, not from looking impressive.",
+                            "Only bright fireflies are worth listening to.",
+                            "Being brave means helping even when we feel afraid."
+                        ],
+                        correctIndices: [0, 2, 4]
+                    },
+                    {
+                        qId: "q1_3",
+                        type: "matrix",
+                        prompt: "3. Based on the story, determine who each action is describing.",
+                        columns: ["Lumi", "The other fireflies"],
+                        rows: [
+                            { text: "Hovered in front of the baby deer in the rain", correctCol: 0 },
+                            { text: "Made fun of a dim light", correctCol: 1 },
+                            { text: "Led the baby deer along the muddy path", correctCol: 0 }
+                        ]
+                    }
+                ],
+                hint: "Fokus pada peran Lumi yang diremehkan namun berhasil membantu Rusa saat badai.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>B</b> (Ringkasan lengkap dari awal, masalah, solusi, dan pesan moral).<br>• Q2: Opsi <b>1, 3, 5</b> (Jangan menilai dari penampilan, nilai sejati ada pada menolong, dan keberanian tetap membantu meski takut).<br>• Q3: Hovered -> Lumi | Made fun -> Other fireflies | Led deer -> Lumi."
+            },
+            {
+                id: 2,
+                type: "Procedure Text",
+                title: "Chamber 2: One Week to Exam Day",
+                icon: "fa-calendar-check",
+                textTitle: "Text B: One Week to Exam Day",
+                passage: `Day 1 – Plan. List all the topics. Mark the difficult ones in red.\nDays 2–4 – Study. Take one difficult topic each day. Study for 25 minutes, then rest for 5 minutes.\nDay 5 – Practice. Do past questions. Check every mistake and write down why it happened.\nDay 6 – Explain. Explain the topics aloud to a friend. If you get stuck, review that part.\nDay 7 – Relax. Read your notes lightly and sleep early.`,
+                questions: [
+                    {
+                        qId: "q2_1",
+                        type: "mcq",
+                        prompt: "1. According to the text, how can a student find their weak points on Day 5?",
+                        options: [
+                            "A. By explaining the topics aloud to a friend",
+                            "B. By doing past questions and checking the mistakes",
+                            "C. By marking difficult topics in red",
+                            "D. By sleeping early the night before",
+                            "E. By studying one difficult topic for 25 minutes"
+                        ],
+                        correct: "B"
+                    },
+                    {
+                        qId: "q2_2",
+                        type: "mcma",
+                        prompt: "2. Which statements best reflect the author's purpose in writing the text? (Select ALL correct answers)",
+                        options: [
+                            "To give a practical guide for organizing exam preparation",
+                            "To entertain students with a funny exam story",
+                            "To encourage students to prepare step by step",
+                            "To prove that students do not need to study before exams",
+                            "To show students that preparation can be planned and manageable"
+                        ],
+                        correctIndices: [0, 2, 4]
+                    },
+                    {
+                        qId: "q2_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each activity belongs to Preparation or Practice.",
+                        columns: ["Preparation", "Practice"],
+                        rows: [
+                            { text: "List all the topics", correctCol: 0 },
+                            { text: "Do past questions", correctCol: 1 },
+                            { text: "Explain the topics aloud to a friend", correctCol: 1 }
+                        ]
+                    }
+                ],
+                hint: "Perhatikan kegiatan spesifik yang disarankan pada Day 5.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>B</b> (Day 5 - Practice: mengerjakan soal lalu mengecek kesalahan).<br>• Q2: Opsi <b>1, 3, 5</b> (Tujuan penulis adalah memberi panduan praktis, mendorong langkah demi langkah, dan membuat persiapan terencana).<br>• Q3: List topics -> Preparation | Past questions -> Practice | Explain aloud -> Practice."
+            },
+            {
+                id: 3,
+                type: "Descriptive Text",
+                title: "Chamber 3: Raja Ampat",
+                icon: "fa-water",
+                textTitle: "Text C: Raja Ampat",
+                passage: `Raja Ampat is a group of islands in West Papua, in the far east of Indonesia. Its name means "Four Kings" because of its four large islands. The sea there is so clear that visitors can see colorful fish from the boat. Divers can meet manta rays, sea turtles, and more than 1,000 kinds of small fish.\n\nOn land, rare birds such as the red bird-of-paradise live in the green forest. The local people protect the sea with traditional rules, so the coral stays healthy. For many travelers, Raja Ampat feels like a painting that never ends.`,
+                questions: [
+                    {
+                        qId: "q3_1",
+                        type: "mcma",
+                        prompt: "1. Which of the following descriptions are mentioned clearly in the text? (Select ALL correct answers)",
+                        options: [
+                            "The islands are located in West Papua.",
+                            "The name refers to four large islands.",
+                            "Divers can meet manta rays.",
+                            "The islands were built by Dutch explorers.",
+                            "Tourists are not allowed to enter the sea."
+                        ],
+                        correctIndices: [0, 1, 2]
+                    },
+                    {
+                        qId: "q3_2",
+                        type: "mcq",
+                        prompt: "2. The author mentioned \"feels like a painting that never ends\". What does this phrase most likely mean?",
+                        options: [
+                            "A. The place looks the same as every other beach.",
+                            "B. The scenery is so beautiful in every direction that it seems unreal.",
+                            "C. People live inside a painting under the sea.",
+                            "D. The sea is dark and dangerous.",
+                            "E. The reef is quiet because it has no animals."
+                        ],
+                        correct: "B"
+                    },
+                    {
+                        qId: "q3_3",
+                        type: "matrix",
+                        prompt: "3. Based on the text, determine where each animal can be found.",
+                        columns: ["Underwater", "On land"],
+                        rows: [
+                            { text: "Manta ray", correctCol: 0 },
+                            { text: "Red bird-of-paradise", correctCol: 1 },
+                            { text: "Sea turtle", correctCol: 0 }
+                        ]
+                    }
+                ],
+                hint: "Cari frasa 'painting that never ends' dan habitat hewan laut vs darat.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: Opsi <b>1, 2, 3</b> (Letak di Papua Barat, nama 4 raja/pulau besar, penyelam bertemu pari manta).<br>• Q2: <b>B</b> (Keindahan pemandangan luar biasa ke segala arah).<br>• Q3: Manta ray -> Underwater | Red bird-of-paradise -> On land | Sea turtle -> Underwater."
+            },
+            {
+                id: 4,
+                type: "Analytical Exposition",
+                title: "Chamber 4: Read 20 Minutes a Day",
+                icon: "fa-book-reader",
+                textTitle: "Text D: Read 20 Minutes a Day & Survey Table",
+                passage: `Students should read for at least twenty minutes every day. First, reading builds vocabulary because readers meet new words in context. Second, it improves focus, since a book needs attention for much longer than a video clip. Third, reading before bed helps the mind slow down and lowers stress. Therefore, schools and families should support a daily reading habit.\n\nTable 1. Survey of 100 students:\n• Reading books: 30%\n• Scrolling social media: 70%\n• Having a library card: 40%`,
+                questions: [
+                    {
+                        qId: "q4_1",
+                        type: "mcq",
+                        prompt: "1. Which information would make the text more persuasive?",
+                        options: [
+                            "A. A paragraph about the history of books",
+                            "B. A short fact from a study showing that students who read daily score higher in vocabulary tests",
+                            "C. A picture of a school library",
+                            "D. A joke about homework",
+                            "E. A list of famous authors"
+                        ],
+                        correct: "B"
+                    },
+                    {
+                        qId: "q4_2",
+                        type: "mcma",
+                        prompt: "2. Which statements are supported by clear data or facts in the text and table? (Select ALL correct answers)",
+                        options: [
+                            "30% of the surveyed students read books for 20+ minutes daily.",
+                            "70% of the surveyed students scroll social media for 20+ minutes daily.",
+                            "Reading is the best hobby in the world.",
+                            "Every student hates reading.",
+                            "More surveyed students scroll social media than read books."
+                        ],
+                        correctIndices: [0, 1, 4]
+                    },
+                    {
+                        qId: "q4_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each statement is a Fact or an Opinion.",
+                        columns: ["Fact", "Opinion"],
+                        rows: [
+                            { text: "40% of the surveyed students have a library card.", correctCol: 0 },
+                            { text: "Reading is the most enjoyable hobby for teenagers.", correctCol: 1 },
+                            { text: "Schools and families should support a daily reading habit.", correctCol: 1 }
+                        ]
+                    }
+                ],
+                hint: "Bedakan data kuantitatif pada tabel dengan klaim/opini rekomendasi.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>B</b> (Bukti studi Ilmiah memperkuat argumen persuasif).<br>• Q2: Opsi <b>1, 2, 5</b> (30% membaca, 70% sosmed, dan persentase sosmed lebih tinggi).<br>• Q3: 40% library card -> Fact | Most enjoyable -> Opinion | Schools should support -> Opinion."
+            },
+            {
+                id: 5,
+                type: "Recount Text",
+                title: "Chamber 5: My First Cleanup Day",
+                icon: "fa-broom",
+                textTitle: "Text E: My First Cleanup Day",
+                passage: `Last Monday, I joined the school cleanup program for the first time. We met at 7 a.m. in the yard, and Mr. Hadi divided us into four groups. My group cleaned the canteen area, where we found plastic bottles, paper, and leaves. At first, I felt embarrassed to touch the trash, but my friend Sari showed me how to use gloves and sort it. By 9 a.m., the canteen looked tidy. In the end, I was tired but proud, and I promised to join again next month.`,
+                questions: [
+                    {
+                        qId: "q5_1",
+                        type: "mcq",
+                        prompt: "1. Which option gives the correct order of events?",
+                        options: [
+                            "A. Felt proud → met in the yard → cleaned the canteen → divided into groups",
+                            "B. Cleaned the canteen → met in the yard → felt embarrassed → divided into groups",
+                            "C. Met in the yard → divided into groups → cleaned the canteen → felt proud",
+                            "D. Divided into groups → felt proud → met in the yard → cleaned the canteen"
+                        ],
+                        correct: "C"
+                    },
+                    {
+                        qId: "q5_2",
+                        type: "mcma",
+                        prompt: "2. Which statements describe the writer's experience? (Select ALL correct answers)",
+                        options: [
+                            "The writer felt embarrassed at first.",
+                            "The writer felt proud at the end.",
+                            "The writer was angry with Mr. Hadi.",
+                            "The writer wants to join the program again.",
+                            "The writer was bored all day."
+                        ],
+                        correctIndices: [0, 1, 3]
+                    },
+                    {
+                        qId: "q5_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each event happened at the Beginning or at the End of the day.",
+                        columns: ["Beginning", "End"],
+                        rows: [
+                            { text: "The writer felt embarrassed to touch the trash.", correctCol: 0 },
+                            { text: "The writer felt tired but proud.", correctCol: 1 },
+                            { text: "The canteen looked tidy.", correctCol: 1 }
+                        ]
+                    }
+                ],
+                hint: "Perhatikan kronologi waktu: jam 7 pagi vs jam 9 pagi / akhir acara.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>C</b> (Met in yard -> divided groups -> cleaned canteen -> felt proud).<br>• Q2: Opsi <b>1, 2, 4</b> (Malu di awal, bangga di akhir, ingin ikut lagi bulan depan).<br>• Q3: Embarrassed -> Beginning | Tired but proud -> End | Canteen tidy -> End."
+            },
+            {
+                id: 6,
+                type: "Announcement Text",
+                title: "Chamber 6: English Speech Contest",
+                icon: "fa-bullhorn",
+                textTitle: "Text F: English Speech Contest",
+                passage: `SMAN 1 Harapan will hold an English Speech Contest on Saturday, 14 November, at 9 a.m. in the school hall. Open for Grade X and XI students. Theme: "Small Actions, Big Change". Each speech lasts 3–4 minutes. Register to Ms. Rina in the English Room before 6 November. Registration is free. Winners will receive certificates and books.`,
+                questions: [
+                    {
+                        qId: "q6_1",
+                        type: "mcq",
+                        prompt: "1. Who may join the contest?",
+                        options: [
+                            "A. Grade XII students only",
+                            "B. Grade X and XI students",
+                            "C. All teachers",
+                            "D. Parents of students"
+                        ],
+                        correct: "B"
+                    },
+                    {
+                        qId: "q6_2",
+                        type: "mcma",
+                        prompt: "2. Which statements are true according to the text? (Select ALL correct answers)",
+                        options: [
+                            "The contest will be held in the school hall.",
+                            "Participants do not have to pay.",
+                            "Registration closes on 6 November.",
+                            "Grade XII students must join.",
+                            "Each speech lasts ten minutes."
+                        ],
+                        correctIndices: [0, 1, 2]
+                    },
+                    {
+                        qId: "q6_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each information is a Requirement or a Benefit.",
+                        columns: ["Requirement", "Benefit"],
+                        rows: [
+                            { text: "Each speech lasts 3–4 minutes.", correctCol: 0 },
+                            { text: "Winners receive certificates and books.", correctCol: 1 },
+                            { text: "Register before 6 November.", correctCol: 0 }
+                        ]
+                    }
+                ],
+                hint: "Perhatikan detail peserta yang berhak (Grade X & XI) dan batas waktu pendaftaran.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>B</b> (Grade X and XI students).<br>• Q2: Opsi <b>1, 2, 3</b> (Di school hall, gratis/free, tutup 6 Nov).<br>• Q3: 3-4 mins -> Requirement | Winners receive books -> Benefit | Register before Nov 6 -> Requirement."
+            },
+            {
+                id: 7,
+                type: "News Item Text",
+                title: "Chamber 7: Students Plant 500 Trees",
+                icon: "fa-newspaper",
+                textTitle: "Text G: Students Plant 500 Trees",
+                passage: `Students from three schools planted 500 young trees along the Sukamaju riverbank on Sunday morning. The activity aimed to stop soil erosion after heavy rains damaged the bank last month. "We want the river to be safe for our families," said Dina, a Grade XI student. The local government provided the seedlings, while volunteers brought tools and water. The group plans to check the trees every month for one year.`,
+                questions: [
+                    {
+                        qId: "q7_1",
+                        type: "mcq",
+                        prompt: "1. What was the main purpose of the activity?",
+                        options: [
+                            "A. To celebrate a school holiday",
+                            "B. To raise money for the river",
+                            "C. To stop soil erosion at the riverbank",
+                            "D. To teach students how to swim"
+                        ],
+                        correct: "C"
+                    },
+                    {
+                        qId: "q7_2",
+                        type: "mcma",
+                        prompt: "2. Which statements are supported by the text? (Select ALL correct answers)",
+                        options: [
+                            "Students from three schools joined the activity.",
+                            "The local government provided the seedlings.",
+                            "The group will check the trees every month.",
+                            "The trees were planted on Saturday afternoon.",
+                            "The river flooded the town yesterday."
+                        ],
+                        correctIndices: [0, 1, 2]
+                    },
+                    {
+                        qId: "q7_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each statement is a Fact or an Opinion.",
+                        columns: ["Fact", "Opinion"],
+                        rows: [
+                            { text: "Students planted 500 young trees.", correctCol: 0 },
+                            { text: "Planting trees is the best way to protect every river.", correctCol: 1 },
+                            { text: "The local government provided the seedlings.", correctCol: 0 }
+                        ]
+                    }
+                ],
+                hint: "Cari kata 'aimed to' untuk tujuan utama penanaman pohon.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>C</b> (Mencegah erosi tanah tepi sungai).<br>• Q2: Opsi <b>1, 2, 3</b> (Siswa dari 3 sekolah, bibit dari pemda, dipantau tiap bulan).<br>• Q3: Planted 500 trees -> Fact | Best way -> Opinion | Govt provided seedlings -> Fact."
+            },
+            {
+                id: 8,
+                type: "Hortatory Exposition",
+                title: "Chamber 8: Bring Your Own Bottle",
+                icon: "fa-bottle-water",
+                textTitle: "Text H: Bring Your Own Bottle",
+                passage: `Students should bring refillable water bottles to school. First, plastic bottles create a lot of waste, and our school bins are full of them every day. Second, a refillable bottle saves money because students do not need to buy water daily. Therefore, the school should provide refill stations, and students ought to bring their own bottles every day.`,
+                questions: [
+                    {
+                        qId: "q8_1",
+                        type: "mcq",
+                        prompt: "1. What is the writer's recommendation?",
+                        options: [
+                            "A. Students should stop drinking water at school.",
+                            "B. The canteen should sell more plastic bottles.",
+                            "C. The school should provide refill stations, and students should bring their own bottles.",
+                            "D. Students should buy water every day to help the canteen."
+                        ],
+                        correct: "C"
+                    },
+                    {
+                        qId: "q8_2",
+                        type: "mcma",
+                        prompt: "2. Which statements are arguments that support the writer's thesis? (Select ALL correct answers)",
+                        options: [
+                            "Plastic bottles create a lot of waste.",
+                            "Drinking water from school is not healthy.",
+                            "Refillable bottles save students' money.",
+                            "The canteen sells many snacks.",
+                            "The school bins are full of plastic bottles every day."
+                        ],
+                        correctIndices: [0, 2, 4]
+                    },
+                    {
+                        qId: "q8_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each statement is an Argument or a Recommendation.",
+                        columns: ["Argument", "Recommendation"],
+                        rows: [
+                            { text: "Students do not need to buy water daily.", correctCol: 0 },
+                            { text: "The school should provide refill stations.", correctCol: 1 },
+                            { text: "Students ought to bring their own bottles every day.", correctCol: 1 }
+                        ]
+                    }
+                ],
+                hint: "Rekomendasi biasa menggunakan modal 'should' atau 'ought to'.",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: <b>C</b> (Sekolah menyediakan tempat isi ulang & siswa membawa botol).<br>• Q2: Opsi <b>1, 3, 5</b> (Sampah plastik, menghemat uang, tempat sampah penuh).<br>• Q3: Save money -> Argument | Provide refill -> Recommendation | Ought to bring -> Recommendation."
+            },
+            {
+                id: 9,
+                type: "Report Text",
+                title: "Chamber 9: Honeybees",
+                icon: "fa-sun-plant-wilt",
+                textTitle: "Text I: Honeybees",
+                passage: `Honeybees are insects that live in large groups called colonies. A colony has one queen, hundreds of male drones, and thousands of female workers. The queen lays eggs, while the workers collect nectar, make honey, and clean the hive. Bees also communicate through a "waggle dance" that shows other bees where flowers are. Honeybees are important because they pollinate many crops, such as apples and almonds.`,
+                questions: [
+                    {
+                        qId: "q9_1",
+                        type: "mcma",
+                        prompt: "1. Which statements are mentioned clearly in the text? (Select ALL correct answers)",
+                        options: [
+                            "Honeybees live in groups called colonies.",
+                            "The queen lays eggs.",
+                            "Workers make honey.",
+                            "Drones collect nectar.",
+                            "Honeybees live alone in the forest."
+                        ],
+                        correctIndices: [0, 1, 2]
+                    },
+                    {
+                        qId: "q9_2",
+                        type: "mcq",
+                        prompt: "2. What is the purpose of the \"waggle dance\"?",
+                        options: [
+                            "A. To scare other insects away",
+                            "B. To show other bees where flowers are",
+                            "C. To call the queen to lay eggs",
+                            "D. To make honey faster"
+                        ],
+                        correct: "B"
+                    },
+                    {
+                        qId: "q9_3",
+                        type: "matrix",
+                        prompt: "3. Decide whether each task belongs to the Queen or the Workers.",
+                        columns: ["Queen", "Workers"],
+                        rows: [
+                            { text: "Lays eggs", correctCol: 0 },
+                            { text: "Collects nectar", correctCol: 1 },
+                            { text: "Cleans the hive", correctCol: 1 }
+                        ]
+                    }
+                ],
+                hint: "Perhatikan tugas spesifik Ratu (Queen) dan Pekerja (Workers).",
+                explanation: "<strong>Kunci Jawaban:</strong><br>• Q1: Opsi <b>1, 2, 3</b> (Hidup berkoloni, ratu bertelur, pekerja buat madu).<br>• Q2: <b>B</b> (Menunjukkan lokasi bunga ke lebah lain).<br>• Q3: Lays eggs -> Queen | Collects nectar -> Workers | Cleans hive -> Workers."
+            }
+        ];
+
+        /* ==========================================================================
+           STATE MANAGEMENT
+           ========================================================================== */
+        let gameState = {
+            playerName: "Agent",
+            activeChamberId: 1,
+            unlockedChambers: [], // Array of solved IDs
+            score: 1000,
+            timeLeftSeconds: 25 * 60, // 25 minutes
+            timerInterval: null,
+            inventory: [],
+            isCompleted: false
+        };
+
+        /* ==========================================================================
+           DOM ELEMENTS
+           ========================================================================== */
+        const startScreen = document.getElementById('start-screen');
+        const gameDashboard = document.getElementById('game-dashboard');
+        const victoryScreen = document.getElementById('victory-screen');
+        const headerStats = document.getElementById('header-stats');
+        
+        const playerNameInput = document.getElementById('player-name-input');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const audioToggleBtn = document.getElementById('audio-toggle-btn');
+        const audioIcon = document.getElementById('audio-icon');
+
+        const timerDisplay = document.getElementById('timer-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressDisplay = document.getElementById('progress-display');
+
+        const chambersListContainer = document.getElementById('chambers-list-container');
+        const inventoryContainer = document.getElementById('inventory-container');
+        const chamberDetailCard = document.getElementById('chamber-detail-card');
+
+        const modalExplanation = document.getElementById('modal-explanation');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalBodyContent = document.getElementById('modal-body-content');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        /* ==========================================================================
+           INITIALIZATION & EVENT LISTENERS
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            startGameBtn.addEventListener('click', startGame);
+            audioToggleBtn.addEventListener('click', toggleAudio);
+            modalCloseBtn.addEventListener('click', closeModalAndAdvance);
+            document.getElementById('restart-game-btn').addEventListener('click', () => location.reload());
+        });
+
+        function toggleAudio() {
+            sound.init();
+            sound.isMuted = !sound.isMuted;
+            if (sound.isMuted) {
+                audioIcon.className = "fa-solid fa-volume-xmark text-rose-400";
+            } else {
+                audioIcon.className = "fa-solid fa-volume-high text-cyan-400";
+                sound.playClick();
+            }
+        }
+
+        /* ==========================================================================
+           GAME FLOW LOGIC
+           ========================================================================== */
+        function startGame() {
+            sound.init();
+            sound.playClick();
+
+            const name = playerNameInput.value.trim();
+            if (name) {
+                gameState.playerName = name;
+            }
+
+            startScreen.classList.add('hidden');
+            gameDashboard.classList.remove('hidden');
+            headerStats.classList.remove('hidden');
+
+            // Start Timer
+            startTimer();
+
+            // Render Map & Inventory
+            renderChamberList();
+            renderInventory();
+
+            // Load First Chamber
+            loadChamber(1);
+        }
+
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.timeLeftSeconds <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    finishGame();
+                    return;
+                }
+                gameState.timeLeftSeconds--;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(gameState.timeLeftSeconds / 60).toString().padStart(2, '0');
+            const s = (gameState.timeLeftSeconds % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
+        }
+
+        function updateScore(delta) {
+            gameState.score = Math.max(0, gameState.score + delta);
+            scoreDisplay.textContent = gameState.score;
+        }
+
+        /* ==========================================================================
+           RENDER MAP & NAVIGATION
+           ========================================================================== */
+        function renderChamberList() {
+            chambersListContainer.innerHTML = '';
+            
+            chambersData.forEach(ch => {
+                const isSolved = gameState.unlockedChambers.includes(ch.id);
+                const isActive = gameState.activeChamberId === ch.id;
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl cursor-pointer border transition-all flex items-center justify-between ${
+                    isActive 
+                        ? 'bg-slate-800 border-cyber-neon shadow-md shadow-cyber-neon/10' 
+                        : isSolved 
+                            ? 'bg-slate-900/60 border-emerald-500/40 opacity-90' 
+                            : 'bg-slate-950/40 border-slate-800 hover:border-slate-700'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
+                            isSolved 
+                                ? 'bg-emerald-500/20 text-emerald-400' 
+                                : isActive 
+                                    ? 'bg-cyber-neon/20 text-cyber-neon' 
+                                    : 'bg-slate-800 text-slate-500'
+                        }">
+                            <i class="fa-solid ${isSolved ? 'fa-lock-open' : ch.icon}"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold ${isActive ? 'text-white' : 'text-slate-300'}">${ch.title}</p>
+                            <p class="text-[10px] text-slate-500 font-mono">${ch.type}</p>
+                        </div>
+                    </div>
+                    ${isSolved ? '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>' : ''}
+                `;
+
+                card.addEventListener('click', () => {
+                    sound.playClick();
+                    loadChamber(ch.id);
+                });
+
+                chambersListContainer.appendChild(card);
+            });
+
+            progressDisplay.textContent = `${gameState.unlockedChambers.length}/9`;
+        }
+
+        function renderInventory() {
+            inventoryContainer.innerHTML = '';
+            for (let i = 1; i <= 9; i++) {
+                const isUnlocked = gameState.unlockedChambers.includes(i);
+                const slot = document.createElement('div');
+                slot.className = `p-2 rounded-lg border text-center font-mono text-[10px] ${
+                    isUnlocked 
+                        ? 'bg-cyan-950/40 border-cyber-neon/50 text-cyber-neon shadow-sm' 
+                        : 'bg-slate-950/40 border-slate-800/80 text-slate-600'
+                }`;
+                slot.innerHTML = `
+                    <i class="fa-solid ${isUnlocked ? 'fa-key text-cyber-gold' : 'fa-lock'} text-sm mb-1 block"></i>
+                    KEY-${i}
+                `;
+                inventoryContainer.appendChild(slot);
+            }
+        }
+
+        /* ==========================================================================
+           RENDER ACTIVE CHAMBER & QUESTION ENGINE
+           ========================================================================== */
+        function loadChamber(id) {
+            gameState.activeChamberId = id;
+            renderChamberList();
+
+            const chamber = chambersData.find(c => c.id === id);
+            const isSolved = gameState.unlockedChambers.includes(id);
+
+            let html = `
+                <!-- Chamber Header -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4 mb-4">
+                    <div>
+                        <span class="px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-400 text-xs font-mono border border-cyan-800/50">${chamber.type}</span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">${chamber.title}</h2>
+                    </div>
+                    ${isSolved ? '<span class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono text-xs"><i class="fa-solid fa-lock-open mr-1"></i> SOLVED</span>' : ''}
+                </div>
+
+                <!-- Text Reading Passage Panel -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 sm:p-5 mb-6 max-h-60 overflow-y-auto space-y-2">
+                    <h3 class="text-xs font-mono uppercase text-cyber-neon font-bold"><i class="fa-solid fa-file-lines mr-1"></i> ${chamber.textTitle}</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line font-sans">${chamber.passage}</p>
+                </div>
+
+                <!-- Interactive Question Form -->
+                <form id="chamber-form" class="space-y-6">
+            `;
+
+            chamber.questions.forEach((q, idx) => {
+                html += `<div class="bg-slate-950/40 border border-slate-800/80 p-4 rounded-xl space-y-3">`;
+                html += `<p class="font-semibold text-slate-200 text-sm">${q.prompt}</p>`;
+
+                // TYPE 1: MCQ (Single Choice)
+                if (q.type === 'mcq') {
+                    html += `<div class="space-y-2">`;
+                    q.options.forEach((opt, oIdx) => {
+                        const optLetter = String.fromCharCode(65 + oIdx);
+                        html += `
+                            <label class="flex items-start gap-3 p-2.5 rounded-lg border border-slate-800/80 bg-slate-900/40 hover:bg-slate-800/50 cursor-pointer transition-all text-xs sm:text-sm text-slate-300">
+                                <input type="radio" name="${q.qId}" value="${optLetter}" class="mt-0.5 accent-cyan-400" ${isSolved ? 'disabled' : ''}>
+                                <span>${opt}</span>
+                            </label>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // TYPE 2: MCMA (Multiple Choice Multi Answer Checkboxes)
+                else if (q.type === 'mcma') {
+                    html += `<div class="space-y-2">`;
+                    q.options.forEach((opt, oIdx) => {
+                        html += `
+                            <label class="flex items-start gap-3 p-2.5 rounded-lg border border-slate-800/80 bg-slate-900/40 hover:bg-slate-800/50 cursor-pointer transition-all text-xs sm:text-sm text-slate-300">
+                                <input type="checkbox" name="${q.qId}" value="${oIdx}" class="mt-0.5 accent-cyan-400 rounded" ${isSolved ? 'disabled' : ''}>
+                                <span>${opt}</span>
+                            </label>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // TYPE 3: MATRIX / CATEGORIZATION RADIO TABLE
+                else if (q.type === 'matrix') {
+                    html += `
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-slate-400">
+                                        <th class="p-2">Action / Statement</th>
+                                        ${q.columns.map(c => `<th class="p-2 text-center">${c}</th>`).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${q.rows.map((r, rIdx) => `
+                                        <tr class="border-b border-slate-800/40 hover:bg-slate-900/30">
+                                            <td class="p-2 text-slate-300">${r.text}</td>
+                                            ${q.columns.map((c, cIdx) => `
+                                                <td class="p-2 text-center">
+                                                    <input type="radio" name="${q.qId}_row_${rIdx}" value="${cIdx}" class="accent-cyan-400" ${isSolved ? 'disabled' : ''}>
+                                                </td>
+                                            `).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+            });
+
+            // Action Buttons Footer
+            html += `
+                <div class="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
+                    <button type="button" id="hint-btn" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-mono rounded-lg border border-amber-500/30 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i> Minta Clue (-50 Poin)
+                    </button>
+
+                    ${!isSolved ? `
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-cyber-neon to-cyber-accent text-slate-950 font-extrabold text-sm rounded-xl shadow-lg hover:shadow-cyber-neon/30 hover:scale-[1.01] active:scale-[0.99] transition-all">
+                            <i class="fa-solid fa-unlock mr-1.5"></i> BUKA KUNCI CHAMBER
+                        </button>
+                    ` : `
+                        <span class="text-xs font-mono text-emerald-400"><i class="fa-solid fa-check-double mr-1"></i> Ruangan Ini Sudah Dikuasai</span>
+                    `}
+                </div>
+            </form>`;
+
+            chamberDetailCard.innerHTML = html;
+
+            // Form Submit Listener
+            const form = document.getElementById('chamber-form');
+            if (form && !isSolved) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    validateChamberAnswers(chamber);
+                });
+            }
+
+            // Hint Button Listener
+            const hintBtn = document.getElementById('hint-btn');
+            if (hintBtn) {
+                hintBtn.addEventListener('click', () => {
+                    sound.playClick();
+                    updateScore(-50);
+                    alert(`[CLUE KHUSUS CHAMBER ${chamber.id}]:\n${chamber.hint}`);
+                });
+            }
+        }
+
+        /* ==========================================================================
+           ANSWER VALIDATION ENGINE
+           ========================================================================== */
+        function validateChamberAnswers(chamber) {
+            let allCorrect = true;
+
+            chamber.questions.forEach(q => {
+                // Check MCQ
+                if (q.type === 'mcq') {
+                    const selected = document.querySelector(`input[name="${q.qId}"]:checked`);
+                    if (!selected || selected.value !== q.correct) {
+                        allCorrect = false;
+                    }
+                }
+                // Check MCMA
+                else if (q.type === 'mcma') {
+                    const checkboxes = document.querySelectorAll(`input[name="${q.qId}"]:checked`);
+                    const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.value)).sort();
+                    const correctSorted = [...q.correctIndices].sort();
+
+                    if (selectedIndices.length !== correctSorted.length || 
+                        !selectedIndices.every((val, idx) => val === correctSorted[idx])) {
+                        allCorrect = false;
+                    }
+                }
+                // Check Matrix
+                else if (q.type === 'matrix') {
+                    q.rows.forEach((r, rIdx) => {
+                        const selected = document.querySelector(`input[name="${q.qId}_row_${rIdx}"]:checked`);
+                        if (!selected || parseInt(selected.value) !== r.correctCol) {
+                            allCorrect = false;
+                        }
+                    });
+                }
+            });
+
+            if (allCorrect) {
+                sound.playSuccess();
+                if (!gameState.unlockedChambers.includes(chamber.id)) {
+                    gameState.unlockedChambers.push(chamber.id);
+                    updateScore(150); // Reward for clearing a chamber
+                }
+
+                renderChamberList();
+                renderInventory();
+
+                // Show Explanation Modal
+                modalTitle.textContent = `CHAMBER ${chamber.id} UNLOCKED!`;
+                modalBodyContent.innerHTML = chamber.explanation;
+                modalExplanation.classList.remove('hidden');
+
+            } else {
+                sound.playError();
+                updateScore(-30); // Penalty for mistake
+                alert("KODE KUNCI SALAH! Silakan periksa kembali jawaban kamu pada teks di atas. (-30 Poin)");
+            }
+        }
+
+        function closeModalAndAdvance() {
+            sound.playClick();
+            modalExplanation.classList.add('hidden');
+
+            // Check if all 9 chambers solved
+            if (gameState.unlockedChambers.length >= 9) {
+                finishGame();
+            } else {
+                // Auto load next unsolved chamber
+                const nextUnsolved = chambersData.find(c => !gameState.unlockedChambers.includes(c.id));
+                if (nextUnsolved) {
+                    loadChamber(nextUnsolved.id);
+                }
+            }
+        }
+
+        /* ==========================================================================
+           VICTORY & CERTIFICATE GENERATION
+           ========================================================================== */
+        function finishGame() {
+            clearInterval(gameState.timerInterval);
+            sound.playSuccess();
+
+            gameDashboard.classList.add('hidden');
+            victoryScreen.classList.remove('hidden');
+
+            // Populate Certificate
+            document.getElementById('cert-student-name').textContent = gameState.playerName.toUpperCase();
+            document.getElementById('cert-final-score').textContent = gameState.score;
+            
+            const m = Math.floor(gameState.timeLeftSeconds / 60).toString().padStart(2, '0');
+            const s = (gameState.timeLeftSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('cert-time-left').textContent = `${m}:${s}`;
+
+            // Calculate Title & Badges
+            let title = "LITERACY AGENT";
+            if (gameState.score >= 1800) title = "MASTER LINGUIST";
+            else if (gameState.score >= 1400) title = "EXAM SCHOLAR";
+            
+            document.getElementById('cert-badge-title').textContent = title;
+
+            // Render Badges
+            const badgesContainer = document.getElementById('badges-container');
+            badgesContainer.innerHTML = `
+                <span class="px-3 py-1.5 rounded-lg bg-cyan-950 border border-cyber-neon/40 text-cyber-neon text-xs font-mono"><i class="fa-solid fa-shield-halved mr-1"></i> TKA Ready</span>
+                <span class="px-3 py-1.5 rounded-lg bg-amber-950 border border-cyber-gold/40 text-cyber-gold text-xs font-mono"><i class="fa-solid fa-bolt mr-1"></i> Fast Escaper</span>
+                <span class="px-3 py-1.5 rounded-lg bg-purple-950 border border-purple-500/40 text-purple-300 text-xs font-mono"><i class="fa-solid fa-brain mr-1"></i> 9 Text Types Mastered</span>
+            `;
+        }
+    </script>
+</body>
+</html>
